@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hospital Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand h2 {
+            color: #667eea;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-logout {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-section h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-section p {
+            opacity: 0.9;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+        }
+        
+        .stat-info h3 {
+            font-size: 2rem;
+            color: #667eea;
+        }
+        
+        .stat-info p {
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card h3 .icon {
+            font-size: 1.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Recent Activity */
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .activity-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0e7ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-btn {
+            background: white;
+            padding: 1rem;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #333;
+            display: block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .quick-btn .emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* System Health */
+        .system-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .system-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f7f7f7;
+            border-radius: 8px;
+        }
+        
+        .system-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .system-item .label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 HMS - Admin Panel</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="admin_dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="dashboard.html">Main Dashboard</a></li>
+            <li><a href="patients.html">Patients</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="users.html">Users</a></li>
+        </ul>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 id="welcomeMessage">Welcome, Admin!</h1>
+            <p id="dateTime"></p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card" onclick="window.location.href='patients.html'">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="totalPatients">0</h3>
+                    <p>Total Patients</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='doctors.html'">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-info">
+                    <h3 id="totalDoctors">0</h3>
+                    <p>Total Doctors</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='appointments.html'">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3 id="totalAppointments">0</h3>
+                    <p>Total Appointments</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='appointments.html'">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3 id="todayAppointments">0</h3>
+                    <p>Today's Appointments</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='users.html'">
+                <div class="stat-icon">👤</div>
+                <div class="stat-info">
+                    <h3 id="totalUsers">0</h3>
+                    <p>System Users</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='reports.html'">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <h3 id="totalRevenue">$0</h3>
+                    <p>Revenue (Month)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="patients.html" class="quick-btn">
+                <div class="emoji">➕</div>
+                <div>Add Patient</div>
+            </a>
+            <a href="doctors.html" class="quick-btn">
+                <div class="emoji">👨‍⚕️</div>
+                <div>Add Doctor</div>
+            </a>
+            <a href="appointments.html" class="quick-btn">
+                <div class="emoji">📅</div>
+                <div>Schedule Appointment</div>
+            </a>
+            <a href="users.html" class="quick-btn">
+                <div class="emoji">👥</div>
+                <div>Manage Users</div>
+            </a>
+            <a href="register.html" class="quick-btn">
+                <div class="emoji">📝</div>
+                <div>Register New User</div>
+            </a>
+            <a href="reports.html" class="quick-btn">
+                <div class="emoji">📊</div>
+                <div>Generate Report</div>
+            </a>
+        </div>
+
+        <!-- Charts and Activity Grid -->
+        <div class="dashboard-grid">
+            <!-- Appointments Chart -->
+            <div class="card">
+                <h3>
+                    <span class="icon">📊</span>
+                    Appointments Overview
+                </h3>
+                <div class="chart-container">
+                    <canvas id="appointmentsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="card">
+                <h3>
+                    <span class="icon">🖥️</span>
+                    System Health
+                </h3>
+                <div class="system-stats">
+                    <div class="system-item">
+                        <div class="value" id="dbStatus">✅</div>
+                        <div class="label">Database</div>
+                    </div>
+                    <div class="system-item">
+                        <div class="value" id="apiStatus">✅</div>
+                        <div class="label">API Server</div>
+                    </div>
+                    <div class="system-item">
+                        <div class="value" id="activeUsers">0</div>
+                        <div class="label">Active Users</div>
+                    </div>
+                    <div class="system-item">
+                        <div class="value" id="uptime">100%</div>
+                        <div class="label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h3>
+                    <span class="icon">⏰</span>
+                    Recent Activity
+                </h3>
+                <div class="activity-list" id="activityList">
+                    <div class="activity-item">
+                        <div class="activity-icon">⏳</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Loading activities...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Appointments -->
+            <div class="card">
+                <h3>
+                    <span class="icon">⏰</span>
+                    Upcoming Appointments
+                </h3>
+                <div class="activity-list" id="upcomingAppointments">
+                    <div class="activity-item">
+                        <div class="activity-icon">📅</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Loading appointments...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('access_token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        let appointmentsChart;
+        
+        // Check authentication
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        // Check if user is admin
+        if (user.role !== 'admin') {
+            alert('Access Denied! Only administrators can access this page.');
+            window.location.href = 'dashboard.html';
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        // Display welcome message and date/time
+        function displayWelcome() {
+            const hour = new Date().getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
+            if (hour >= 17) greeting = 'Good Evening';
+            
+            document.getElementById('welcomeMessage').innerHTML = `${greeting}, ${user.full_name || user.username}! 👋`;
+            
+            const now = new Date();
+            const dateTimeStr = now.toLocaleString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('dateTime').innerHTML = dateTimeStr;
+        }
+        
+        // Load dashboard statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/dashboard/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('totalPatients').textContent = stats.total_patients || 0;
+                    document.getElementById('totalDoctors').textContent = stats.total_doctors || 0;
+                    document.getElementById('totalAppointments').textContent = stats.total_appointments || 0;
+                    document.getElementById('todayAppointments').textContent = stats.scheduled_appointments || 0;
+                    document.getElementById('totalUsers').textContent = stats.total_users || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        // Load appointments chart
+        async function loadAppointmentsChart() {
+            try {
+                const response = await fetch(`${API_BASE}/appointments`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const appointments = await response.json();
+                    
+                    const statusCounts = {
+                        'Scheduled': 0,
+                        'Completed': 0,
+                        'Cancelled': 0
+                    };
+                    
+                    appointments.forEach(apt => {
+                        if (statusCounts[apt.status] !== undefined) {
+                            statusCounts[apt.status]++;
+                        }
+                    });
+                    
+                    const ctx = document.getElementById('appointmentsChart').getContext('2d');
+                    if (appointmentsChart) appointmentsChart.destroy();
+                    
+                    appointmentsChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Scheduled', 'Completed', 'Cancelled'],
+                            datasets: [{
+                                data: [statusCounts.Scheduled, statusCounts.Completed, statusCounts.Cancelled],
+                                backgroundColor: ['#667eea', '#48bb78', '#e53e3e'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading chart:', error);
+            }
+        }
+        
+        // Load recent activity
+        async function loadRecentActivity() {
+            try {
+                const [patients, doctors, appointments] = await Promise.all([
+                    fetch(`${API_BASE}/patients`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+                    fetch(`${API_BASE}/doctors`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+                    fetch(`${API_BASE}/appointments`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+                ]);
+                
+                const activities = [];
+                
+                // Add recent patients (last 5)
+                if (patients && patients.length > 0) {
+                    patients.slice(0, 3).forEach(patient => {
+                        activities.push({
+                            icon: '👤',
+                            title: `New patient registered: ${patient.name}`,
+                            time: patient.created_at ? new Date(patient.created_at).toLocaleDateString() : 'Today'
+                        });
+                    });
+                }
+                
+                // Add recent appointments
+                if (appointments && appointments.length > 0) {
+                    appointments.slice(0, 3).forEach(apt => {
+                        activities.push({
+                            icon: '📅',
+                            title: `Appointment scheduled: ${apt.patient_name} with ${apt.doctor_name}`,
+                            time: apt.appointment_date
+                        });
+                    });
+                }
+                
+                const activityList = document.getElementById('activityList');
+                if (activities.length === 0) {
+                    activityList.innerHTML = '<div class="activity-item"><div class="activity-content">No recent activity</div></div>';
+                } else {
+                    activityList.innerHTML = activities.map(activity => `
+                        <div class="activity-item">
+                            <div class="activity-icon">${activity.icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-title">${activity.title}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading activity:', error);
+            }
+        }
+        
+        // Load upcoming appointments
+        async function loadUpcomingAppointments() {
+            try {
+                const response = await fetch(`${API_BASE}/appointments`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const appointments = await response.json();
+                    const today = new Date().toISOString().split('T')[0];
+                    const upcoming = appointments.filter(apt => apt.appointment_date >= today && apt.status === 'Scheduled').slice(0, 5);
+                    
+                    const container = document.getElementById('upcomingAppointments');
+                    if (upcoming.length === 0) {
+                        container.innerHTML = '<div class="activity-item"><div class="activity-content">No upcoming appointments</div></div>';
+                    } else {
+                        container.innerHTML = upcoming.map(apt => `
+                            <div class="activity-item">
+                                <div class="activity-icon">🩺</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">${apt.patient_name} with Dr. ${apt.doctor_name}</div>
+                                    <div class="activity-time">${apt.appointment_date} at ${apt.appointment_time}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading upcoming appointments:', error);
+            }
+        }
+        
+        // Load system health
+        async function loadSystemHealth() {
+            try {
+                // Test API
+                const apiResponse = await fetch(`${API_BASE}/test`);
+                document.getElementById('apiStatus').innerHTML = apiResponse.ok ? '✅' : '❌';
+                
+                // Test Database
+                const dbResponse = await fetch(`${API_BASE}/patients`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                document.getElementById('dbStatus').innerHTML = dbResponse.ok ? '✅' : '❌';
+                
+                // Active users (simulated)
+                document.getElementById('activeUsers').textContent = Math.floor(Math.random() * 20) + 5;
+                
+                // Uptime (simulated)
+                document.getElementById('uptime').textContent = '99.9%';
+            } catch (error) {
+                console.error('Error loading system health:', error);
+            }
+        }
+        
+        // Load revenue (simulated for now)
+        async function loadRevenue() {
+            // You can implement actual revenue calculation from billing system
+            document.getElementById('totalRevenue').textContent = '$' + Math.floor(Math.random() * 50000 + 10000).toLocaleString();
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadStats();
+            loadAppointmentsChart();
+            loadRecentActivity();
+            loadUpcomingAppointments();
+            loadSystemHealth();
+        }, 30000);
+        
+        // Initialize dashboard
+        displayWelcome();
+        loadStats();
+        loadAppointmentsChart();
+        loadRecentActivity();
+        loadUpcomingAppointments();
+        loadSystemHealth();
+        loadRevenue();
+        // Show Admin Dashboard menu only for admin users
+if (user.role === 'admin') {
+    document.getElementById('adminDashboardNavItem').style.display = 'list-item';
+}
+    </script>
+</body>
+</html>

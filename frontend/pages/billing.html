@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - Hospital Management System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .nav-brand h2 {
+            color: #667eea;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-logout {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .form-container h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow-x: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 1rem;
+        }
+        
+        .table-container h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+        
+        .status-paid {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-pending {
+            background: #feebc8;
+            color: #7c2d12;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 HMS</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="patients.html">Patients</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="pharmacy.html">Pharmacy</a></li>
+            <li><a href="billing.html" class="active">Billing</a></li>
+            <li><a href="reports.html">Reports</a></li>
+        </ul>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="container">
+        <div id="messageDiv"></div>
+        
+        <!-- Generate Bill Form -->
+        <div class="form-container">
+            <h2>💰 Generate Bill</h2>
+            <form id="billingForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Select Patient *</label>
+                        <select id="patient_id" required>
+                            <option value="">-- Select Patient --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount ($) *</label>
+                        <input type="number" id="amount" step="0.01" required placeholder="Enter amount">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="3" placeholder="Enter bill description (e.g., Consultation, Lab Tests, Medicines)"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Due Date (Optional)</label>
+                        <input type="date" id="due_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="payment_method">
+                            <option value="">-- Select Payment Method --</option>
+                            <option value="Cash">💵 Cash</option>
+                            <option value="Card">💳 Card</option>
+                            <option value="Insurance">🏥 Insurance</option>
+                            <option value="Online">🌐 Online Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">💰 Generate Invoice</button>
+            </form>
+        </div>
+
+        <!-- Billing History -->
+        <div class="table-container">
+            <h2>📋 Billing History</h2>
+            <div style="overflow-x: auto;">
+                <table id="billingTable">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Patient Name</th>
+                            <th>Amount</th>
+                            <th>Tax</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Payment Method</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody id="billingBody">
+                            <tr><td colspan="9" style="text-align: center;">No bills found</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Modal -->
+        <div id="paymentModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💳 Process Payment</h3>
+                    <span class="close" onclick="closePaymentModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Invoice Number:</strong> <span id="modal_invoice"></span></p>
+                    <p><strong>Amount Due:</strong> $<span id="modal_amount"></span></p>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="modal_payment_method">
+                            <option value="Cash">💵 Cash</option>
+                            <option value="Card">💳 Card</option>
+                            <option value="Insurance">🏥 Insurance</option>
+                            <option value="Online">🌐 Online Transfer</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="processPayment()">✅ Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('access_token');
+        let currentInvoiceId = null;
+        
+        // Check authentication
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('messageDiv');
+            messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                if (messageDiv.firstChild) {
+                    messageDiv.firstChild.remove();
+                }
+            }, 3000);
+        }
+        
+        // Load patients for dropdown
+        async function loadPatientsForDropdown() {
+            try {
+                const response = await fetch(`${API_BASE}/patients`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const patients = await response.json();
+                    const patientSelect = document.getElementById('patient_id');
+                    
+                    if (patients && patients.length > 0) {
+                        patientSelect.innerHTML = '<option value="">-- Select Patient --</option>';
+                        patients.forEach(patient => {
+                            const option = document.createElement('option');
+                            option.value = patient.id;
+                            option.textContent = `${patient.name} (ID: ${patient.id} - ${patient.phone})`;
+                            patientSelect.appendChild(option);
+                        });
+                    } else {
+                        patientSelect.innerHTML = '<option value="">No patients available. Please add patients first.</option>';
+                    }
+                } else {
+                    console.error('Failed to load patients');
+                    showMessage('Failed to load patients list', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+                showMessage('Error loading patients list', 'error');
+            }
+        }
+        
+        // Load billing history
+        async function loadBillingHistory() {
+            try {
+                // For demo purposes, we'll use localStorage to store bills
+                let bills = JSON.parse(localStorage.getItem('hospital_bills') || '[]');
+                displayBills(bills);
+            } catch (error) {
+                console.error('Error loading bills:', error);
+            }
+        }
+        
+        function displayBills(bills) {
+            const tbody = document.getElementById('billingBody');
+            
+            if (!bills || bills.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No bills found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = bills.map(bill => `
+                <tr>
+                    <td><strong>${bill.invoice_number}</strong></td>
+                    <td>${escapeHtml(bill.patient_name)}</td>
+                    <td>$${parseFloat(bill.amount).toFixed(2)}</td>
+                    <td>$${parseFloat(bill.tax || 0).toFixed(2)}</td>
+                    <td><strong>$${parseFloat(bill.total_amount || bill.amount).toFixed(2)}</strong></td>
+                    <td><span class="${bill.payment_status === 'Paid' ? 'status-paid' : 'status-pending'}">${bill.payment_status}</span></td>
+                    <td>${bill.bill_date}</td>
+                    <td>${bill.payment_method || '-'}</td>
+                    <td>
+                        ${bill.payment_status === 'Pending' ? 
+                            `<button class="btn-small btn-success" onclick="openPaymentModal('${bill.invoice_number}', '${bill.total_amount || bill.amount}')">Pay Now</button>` : 
+                            '<span class="status-paid">✓ Paid</span>'
+                        }
+                        <button class="btn-small btn-danger" onclick="deleteBill('${bill.invoice_number}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Generate new bill
+        document.getElementById('billingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const patient_id = document.getElementById('patient_id').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value;
+            const due_date = document.getElementById('due_date').value;
+            const payment_method = document.getElementById('payment_method').value;
+            const generateBtn = document.querySelector('#billingForm button');
+            
+            if (!patient_id) {
+                showMessage('Please select a patient', 'error');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showMessage('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            // Get patient details
+            let patientName = '';
+            try {
+                const response = await fetch(`${API_BASE}/patients/${patient_id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const patient = await response.json();
+                    patientName = patient.name;
+                } else {
+                    // If individual patient endpoint doesn't exist, get from all patients
+                    const allPatients = await fetch(`${API_BASE}/patients`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const patients = await allPatients.json();
+                    const patient = patients.find(p => p.id == patient_id);
+                    patientName = patient ? patient.name : 'Unknown';
+                }
+            } catch (error) {
+                console.error('Error getting patient:', error);
+                patientName = 'Patient';
+            }
+            
+            // Calculate tax (10%)
+            const tax = amount * 0.1;
+            const total_amount = amount + tax;
+            
+            // Generate invoice number
+            const invoice_number = `INV${new Date().getFullYear()}${(new Date().getMonth() + 1).toString().padStart(2, '0')}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+            
+            const newBill = {
+                id: Date.now(),
+                invoice_number: invoice_number,
+                patient_id: parseInt(patient_id),
+                patient_name: patientName,
+                amount: amount,
+                tax: tax,
+                total_amount: total_amount,
+                description: description,
+                due_date: due_date,
+                payment_method: payment_method,
+                payment_status: 'Pending',
+                bill_date: new Date().toISOString().split('T')[0]
+            };
+            
+            // Save to localStorage
+            let bills = JSON.parse(localStorage.getItem('hospital_bills') || '[]');
+            bills.unshift(newBill);
+            localStorage.setItem('hospital_bills', JSON.stringify(bills));
+            
+            showMessage(`✅ Bill generated successfully! Invoice: ${invoice_number}`, 'success');
+            
+            // Reset form
+            document.getElementById('billingForm').reset();
+            document.getElementById('patient_id').value = '';
+            
+            // Reload billing history
+            loadBillingHistory();
+        });
+        
+        function openPaymentModal(invoiceNumber, amount) {
+            currentInvoiceId = invoiceNumber;
+            document.getElementById('modal_invoice').innerText = invoiceNumber;
+            document.getElementById('modal_amount').innerText = parseFloat(amount).toFixed(2);
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            currentInvoiceId = null;
+        }
+        
+        function processPayment() {
+            if (!currentInvoiceId) return;
+            
+            const paymentMethod = document.getElementById('modal_payment_method').value;
+            
+            let bills = JSON.parse(localStorage.getItem('hospital_bills') || '[]');
+            const billIndex = bills.findIndex(b => b.invoice_number === currentInvoiceId);
+            
+            if (billIndex !== -1) {
+                bills[billIndex].payment_status = 'Paid';
+                bills[billIndex].payment_method = paymentMethod;
+                bills[billIndex].paid_date = new Date().toISOString().split('T')[0];
+                localStorage.setItem('hospital_bills', JSON.stringify(bills));
+                
+                showMessage(`✅ Payment processed successfully for invoice ${currentInvoiceId}!`, 'success');
+                closePaymentModal();
+                loadBillingHistory();
+            }
+        }
+        
+        function deleteBill(invoiceNumber) {
+            if (confirm(`Are you sure you want to delete invoice ${invoiceNumber}?`)) {
+                let bills = JSON.parse(localStorage.getItem('hospital_bills') || '[]');
+                bills = bills.filter(b => b.invoice_number !== invoiceNumber);
+                localStorage.setItem('hospital_bills', JSON.stringify(bills));
+                showMessage('Bill deleted successfully!', 'success');
+                loadBillingHistory();
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target === modal) {
+                closePaymentModal();
+            }
+        }
+        
+        // Load data on page load
+        loadPatientsForDropdown();
+        loadBillingHistory();
+    </script>
+    
+    <style>
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close:hover {
+            color: #e53e3e;
+        }
+        
+        .modal-body p {
+            margin-bottom: 1rem;
+        }
+        
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.85rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</body>
+</html>

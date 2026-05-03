@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Hospital Management System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Include html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .nav-brand h2 {
+            color: #667eea;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-logout {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .form-container h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #3182ce;
+        }
+        
+        .report-results {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .report-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-scheduled {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        
+        .status-completed {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-cancelled {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Print styles for PDF */
+        @media print {
+            .navbar, .form-container, .report-actions, .btn-logout {
+                display: none !important;
+            }
+            
+            .report-results {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            body {
+                background: white;
+                padding: 20px;
+            }
+            
+            .container {
+                margin: 0;
+                padding: 0;
+            }
+            
+            th {
+                background: #667eea;
+                color: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .report-actions {
+                width: 100%;
+            }
+            
+            .report-actions .btn {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 HMS</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="patients.html">Patients</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="pharmacy.html">Pharmacy</a></li>
+            <li><a href="reports.html" class="active">Reports</a></li>
+        </ul>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="container">
+        <div id="messageDiv"></div>
+        
+        <div class="form-container">
+            <h2>📊 Generate Reports</h2>
+            <form id="reportForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Report Type *</label>
+                        <select id="reportType" required>
+                            <option value="">Select Report Type</option>
+                            <option value="patients">📋 Patient Report</option>
+                            <option value="appointments">📅 Appointment Report</option>
+                            <option value="pharmacy">💊 Pharmacy Inventory Report</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row" id="dateRangeDiv">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="generateBtn">📊 Generate Report</button>
+            </form>
+        </div>
+
+        <div id="reportResults" class="report-results">
+            <div class="report-header">
+                <div class="report-title" id="reportTitle">Report Results</div>
+                <div class="report-actions">
+                    <button class="btn btn-danger" onclick="exportToPDF()" id="pdfBtn" style="display: none;">📄 Export PDF</button>
+                    <button class="btn btn-success" onclick="exportToCSV()" id="csvBtn" style="display: none;">📑 Export CSV</button>
+                </div>
+            </div>
+            <div id="reportContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('access_token');
+        let currentReportData = null;
+        let currentReportType = null;
+        
+        // Check authentication
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('messageDiv');
+            messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                if (messageDiv.firstChild) {
+                    messageDiv.firstChild.remove();
+                }
+            }, 5000);
+        }
+        
+        // Set default dates (last 30 days)
+        function setDefaultDates() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            threeDaysAgo.setDate(today.getDate() - 30);
+            
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+        }
+        
+        // Hide/show date range based on report type
+        document.getElementById('reportType').addEventListener('change', function() {
+            const reportType = this.value;
+            const dateRangeDiv = document.getElementById('dateRangeDiv');
+            
+            if (reportType === 'pharmacy') {
+                dateRangeDiv.style.display = 'none';
+            } else {
+                dateRangeDiv.style.display = 'grid';
+            }
+        });
+        
+        // Generate report
+        document.getElementById('reportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const generateBtn = document.getElementById('generateBtn');
+            
+            if (!reportType) {
+                showMessage('Please select a report type', 'error');
+                return;
+            }
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="loading"></span> Generating...';
+            
+            try {
+                let data = null;
+                
+                if (reportType === 'patients') {
+                    const response = await fetch(`${API_BASE}/patients`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const allPatients = await response.json();
+                    
+                    if (startDate && endDate) {
+                        data = allPatients.filter(patient => {
+                            const createdDate = patient.created_at ? patient.created_at.substring(0, 10) : '';
+                            return createdDate >= startDate && createdDate <= endDate;
+                        });
+                    } else {
+                        data = allPatients;
+                    }
+                    displayPatientReport(data, startDate, endDate);
+                } 
+                else if (reportType === 'appointments') {
+                    const response = await fetch(`${API_BASE}/appointments`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const allAppointments = await response.json();
+                    
+                    if (startDate && endDate) {
+                        data = allAppointments.filter(apt => 
+                            apt.appointment_date >= startDate && apt.appointment_date <= endDate
+                        );
+                    } else {
+                        data = allAppointments;
+                    }
+                    displayAppointmentReport(data, startDate, endDate);
+                }
+                else if (reportType === 'pharmacy') {
+                    const response = await fetch(`${API_BASE}/pharmacy/medicines`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    data = await response.json();
+                    displayPharmacyReport(data);
+                }
+                
+                currentReportData = data;
+                currentReportType = reportType;
+                
+                document.getElementById('reportResults').style.display = 'block';
+                document.getElementById('pdfBtn').style.display = 'inline-block';
+                document.getElementById('csvBtn').style.display = 'inline-block';
+                showMessage('Report generated successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error generating report:', error);
+                showMessage('Error generating report: ' + error.message, 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '📊 Generate Report';
+            }
+        });
+        
+        function displayPatientReport(patients, startDate, endDate) {
+            const container = document.getElementById('reportContent');
+            const title = document.getElementById('reportTitle');
+            
+            const dateText = (startDate && endDate) ? `(${startDate} to ${endDate})` : '(All Time)';
+            title.innerHTML = `📋 Patient Report ${dateText}`;
+            
+            if (!patients || patients.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No patients found</div>';
+                return;
+            }
+            
+            let html = `
+                <div class="table-container">
+                    <table id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Registered Date</th>
+                            </thead>
+                        <tbody>
+            `;
+            
+            patients.forEach(patient => {
+                html += `
+                    <tr>
+                        <td>${patient.id}</td>
+                        <td><strong>${escapeHtml(patient.name)}</strong></td>
+                        <td>${patient.age}</td>
+                        <td>${patient.gender}</td>
+                        <td>${patient.phone}</td>
+                        <td>${escapeHtml(patient.email) || '-'}</td>
+                        <td>${escapeHtml(patient.address) || '-'}</td>
+                        <td>${patient.created_at ? patient.created_at.substring(0,10) : '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info" style="margin-top: 1rem;">
+                    <strong>Summary:</strong> Total Patients: ${patients.length}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function displayAppointmentReport(appointments, startDate, endDate) {
+            const container = document.getElementById('reportContent');
+            const title = document.getElementById('reportTitle');
+            
+            const dateText = (startDate && endDate) ? `(${startDate} to ${endDate})` : '(All Time)';
+            title.innerHTML = `📅 Appointment Report ${dateText}`;
+            
+            if (!appointments || appointments.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No appointments found</div>';
+                return;
+            }
+            
+            const scheduled = appointments.filter(a => a.status === 'Scheduled').length;
+            const completed = appointments.filter(a => a.status === 'Completed').length;
+            const cancelled = appointments.filter(a => a.status === 'Cancelled').length;
+            
+            let html = `
+                <div class="alert alert-info">
+                    <strong>Summary:</strong> 
+                    Total: ${appointments.length} | 
+                    Scheduled: ${scheduled} | 
+                    Completed: ${completed} | 
+                    Cancelled: ${cancelled}
+                </div>
+                <div class="table-container">
+                    <table id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Specialization</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </thead>
+                        <tbody>
+            `;
+            
+            appointments.forEach(apt => {
+                html += `
+                    <tr>
+                        <td>${apt.id}</td>
+                        <td><strong>${escapeHtml(apt.patient_name)}</strong></td>
+                        <td>${escapeHtml(apt.doctor_name)}</td>
+                        <td>${escapeHtml(apt.specialization)}</td>
+                        <td>${apt.appointment_date}</td>
+                        <td>${apt.appointment_time}</td>
+                        <td><span class="status-badge status-${apt.status.toLowerCase()}">${apt.status}</span></td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function displayPharmacyReport(medicines) {
+            const container = document.getElementById('reportContent');
+            const title = document.getElementById('reportTitle');
+            
+            title.innerHTML = `💊 Pharmacy Inventory Report`;
+            
+            if (!medicines || medicines.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No medicines found in inventory</div>';
+                return;
+            }
+            
+            const lowStock = medicines.filter(m => m.stock_quantity <= (m.reorder_level || 10)).length;
+            const totalValue = medicines.reduce((sum, m) => sum + (m.stock_quantity * m.unit_price), 0);
+            
+            let html = `
+                <div class="alert alert-info">
+                    <strong>Summary:</strong> 
+                    Total Medicines: ${medicines.length} | 
+                    Low Stock: ${lowStock} | 
+                    Total Inventory Value: $${totalValue.toFixed(2)}
+                </div>
+                <div class="table-container">
+                    <table id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Medicine Name</th>
+                                <th>Category</th>
+                                <th>Manufacturer</th>
+                                <th>Stock</th>
+                                <th>Unit Price</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                            </thead>
+                        <tbody>
+            `;
+            
+            medicines.forEach(medicine => {
+                const isLowStock = medicine.stock_quantity <= (medicine.reorder_level || 10);
+                html += `
+                    <tr>
+                        <td>${medicine.id}</td>
+                        <td><strong>${escapeHtml(medicine.medicine_name)}</strong></td>
+                        <td>${escapeHtml(medicine.category) || '-'}</td>
+                        <td>${escapeHtml(medicine.manufacturer) || '-'}</td>
+                        <td class="${isLowStock ? 'low-stock' : ''}">${medicine.stock_quantity}</td>
+                        <td>$${medicine.unit_price}</td>
+                        <td>${medicine.expiry_date || '-'}</td>
+                        <td>${isLowStock ? '⚠️ Low Stock' : '✅ In Stock'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // Export to PDF using html2pdf
+        async function exportToPDF() {
+            const reportContent = document.getElementById('reportResults');
+            const originalTitle = document.getElementById('reportTitle').innerText;
+            
+            if (!reportContent || !currentReportData) {
+                showMessage('Please generate a report first', 'error');
+                return;
+            }
+            
+            showMessage('Generating PDF...', 'info');
+            
+            // Create a clone of the report content for PDF
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <div style="padding: 20px; font-family: Arial, sans-serif;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h1 style="color: #667eea;">🏥 Hospital Management System</h1>
+                        <h2>${originalTitle}</h2>
+                        <p>Generated on: ${new Date().toLocaleString()}</p>
+                        <hr>
+                    </div>
+                    ${document.getElementById('reportContent').innerHTML}
+                    <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #666;">
+                        <p>This is a computer-generated document. No signature required.</p>
+                        <p>© ${new Date().getFullYear()} Hospital Management System</p>
+                    </div>
+                </div>
+            `;
+            
+            // Configure PDF options
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `${currentReportType}_report_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+            
+            try {
+                await html2pdf().set(opt).from(element).save();
+                showMessage('PDF exported successfully!', 'success');
+            } catch (error) {
+                console.error('PDF export error:', error);
+                showMessage('Error generating PDF: ' + error.message, 'error');
+            }
+        }
+        
+        // Export to CSV
+        function exportToCSV() {
+            if (!currentReportData || !currentReportType) {
+                showMessage('Please generate a report first', 'error');
+                return;
+            }
+            
+            let csvContent = "";
+            
+            if (currentReportType === 'patients') {
+                csvContent = "ID,Name,Age,Gender,Phone,Email,Address,Registered Date\n";
+                currentReportData.forEach(p => {
+                    csvContent += `"${p.id}","${escapeCsv(p.name)}","${p.age}","${p.gender}","${p.phone}","${escapeCsv(p.email || '')}","${escapeCsv(p.address || '')}","${p.created_at || ''}"\n`;
+                });
+            } else if (currentReportType === 'appointments') {
+                csvContent = "ID,Patient,Doctor,Specialization,Date,Time,Status\n";
+                currentReportData.forEach(a => {
+                    csvContent += `"${a.id}","${escapeCsv(a.patient_name)}","${escapeCsv(a.doctor_name)}","${escapeCsv(a.specialization)}","${a.appointment_date}","${a.appointment_time}","${a.status}"\n`;
+                });
+            } else if (currentReportType === 'pharmacy') {
+                csvContent = "ID,Medicine Name,Category,Manufacturer,Stock,Unit Price,Expiry Date\n";
+                currentReportData.forEach(m => {
+                    csvContent += `"${m.id}","${escapeCsv(m.medicine_name)}","${escapeCsv(m.category || '')}","${escapeCsv(m.manufacturer || '')}","${m.stock_quantity}","${m.unit_price}","${m.expiry_date || ''}"\n`;
+                });
+            }
+            
+            // Download CSV
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentReportType}_report_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('CSV exported successfully!', 'success');
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function escapeCsv(str) {
+            if (!str) return '';
+            return str.replace(/"/g, '""');
+        }
+        
+        // Set default dates on page load
+        const today = new Date();
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        
+        document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+        document.getElementById('endDate').value = today.toISOString().split('T')[0];
+    </script>
+</body>
+</html>

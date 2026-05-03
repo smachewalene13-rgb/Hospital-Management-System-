@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Search - Hospital Management System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/mobile-responsive.css">
+    <style>
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .search-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .search-box {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-box .search-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .result-category {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .category-header {
+            padding: 1rem;
+            background: #f7fafc;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-header:hover {
+            background: #edf2f7;
+        }
+        
+        .result-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        
+        .result-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .result-details {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .result-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .search-stats {
+            padding: 1rem;
+            background: #f7fafc;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .search-container {
+                padding: 1rem;
+            }
+            
+            .search-header {
+                padding: 1rem;
+            }
+            
+            .result-details {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 HMS</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="patients.html">Patients</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="pharmacy.html">Pharmacy</a></li>
+            <li><a href="global-search.html" class="active">🔍 Search</a></li>
+        </ul>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="search-container">
+        <div class="search-header">
+            <h1>🔍 Global Search</h1>
+            <p>Search across patients, doctors, appointments, and medicines</p>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by name, ID, phone, email..." autocomplete="off">
+                <span class="search-icon">🔍</span>
+            </div>
+            
+            <div class="search-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="patients">Patients</button>
+                <button class="filter-btn" data-filter="doctors">Doctors</button>
+                <button class="filter-btn" data-filter="appointments">Appointments</button>
+                <button class="filter-btn" data-filter="pharmacy">Pharmacy</button>
+            </div>
+        </div>
+        
+        <div id="resultsContainer" class="results-section">
+            <div class="no-results">
+                🔍 Enter search terms to find results
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('access_token');
+        let currentFilter = 'all';
+        let searchTimeout;
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        // Search function
+        async function performSearch(query) {
+            if (!query || query.length < 2) {
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="no-results">
+                        📝 Enter at least 2 characters to search
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}&filter=${currentFilter}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const results = await response.json();
+                    displayResults(results, query);
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+        
+        function displayResults(results, query) {
+            const container = document.getElementById('resultsContainer');
+            let totalResults = 0;
+            let html = '';
+            
+            // Calculate total results
+            for (const category in results) {
+                if (results[category] && results[category].length > 0) {
+                    totalResults += results[category].length;
+                }
+            }
+            
+            if (totalResults === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        😕 No results found for "${query}"
+                    </div>
+                `;
+                return;
+            }
+            
+            // Patients Results
+            if (results.patients && results.patients.length > 0) {
+                html += `
+                    <div class="result-category">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            👥 Patients (${results.patients.length})
+                            <span>▼</span>
+                        </div>
+                        <div class="category-content">
+                `;
+                
+                results.patients.forEach(patient => {
+                    html += `
+                        <div class="result-item" onclick="viewPatient(${patient.id})">
+                            <div class="result-title">${escapeHtml(patient.name)}</div>
+                            <div class="result-details">
+                                <span>🆔 ID: ${patient.id}</span>
+                                <span>🎂 Age: ${patient.age}</span>
+                                <span>⚥ Gender: ${patient.gender}</span>
+                                <span>📞 Phone: ${patient.phone}</span>
+                                <span>📧 Email: ${patient.email || 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Doctors Results
+            if (results.doctors && results.doctors.length > 0) {
+                html += `
+                    <div class="result-category">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            👨‍⚕️ Doctors (${results.doctors.length})
+                            <span>▼</span>
+                        </div>
+                        <div class="category-content">
+                `;
+                
+                results.doctors.forEach(doctor => {
+                    html += `
+                        <div class="result-item" onclick="viewDoctor(${doctor.id})">
+                            <div class="result-title">${escapeHtml(doctor.name)}</div>
+                            <div class="result-details">
+                                <span>🆔 ID: ${doctor.id}</span>
+                                <span>🏥 Specialization: ${doctor.specialization}</span>
+                                <span>📞 Phone: ${doctor.phone}</span>
+                                <span>📧 Email: ${doctor.email || 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Appointments Results
+            if (results.appointments && results.appointments.length > 0) {
+                html += `
+                    <div class="result-category">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            📅 Appointments (${results.appointments.length})
+                            <span>▼</span>
+                        </div>
+                        <div class="category-content">
+                `;
+                
+                results.appointments.forEach(apt => {
+                    html += `
+                        <div class="result-item">
+                            <div class="result-title">${escapeHtml(apt.patient_name)} with Dr. ${escapeHtml(apt.doctor_name)}</div>
+                            <div class="result-details">
+                                <span>🆔 ID: ${apt.id}</span>
+                                <span>📅 Date: ${apt.appointment_date}</span>
+                                <span>⏰ Time: ${apt.appointment_time}</span>
+                                <span class="result-badge">${apt.status}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Pharmacy Results
+            if (results.pharmacy && results.pharmacy.length > 0) {
+                html += `
+                    <div class="result-category">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            💊 Pharmacy (${results.pharmacy.length})
+                            <span>▼</span>
+                        </div>
+                        <div class="category-content">
+                `;
+                
+                results.pharmacy.forEach(medicine => {
+                    html += `
+                        <div class="result-item" onclick="viewMedicine(${medicine.id})">
+                            <div class="result-title">${escapeHtml(medicine.medicine_name)}</div>
+                            <div class="result-details">
+                                <span>🆔 ID: ${medicine.id}</span>
+                                <span>📦 Stock: ${medicine.stock_quantity}</span>
+                                <span>💰 Price: $${medicine.unit_price}</span>
+                                <span>🏭 Manufacturer: ${medicine.manufacturer || 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add search stats
+            html = `
+                <div class="search-stats">
+                    Found ${totalResults} result(s) for "${escapeHtml(query)}"
+                </div>
+                ${html}
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function toggleCategory(header) {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('span');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.innerHTML = '▼';
+            } else {
+                content.style.display = 'none';
+                arrow.innerHTML = '▶';
+            }
+        }
+        
+        function viewPatient(id) {
+            window.location.href = `patients.html?id=${id}`;
+        }
+        
+        function viewDoctor(id) {
+            window.location.href = `doctors.html?id=${id}`;
+        }
+        
+        function viewMedicine(id) {
+            window.location.href = `pharmacy.html?id=${id}`;
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // Search input handler with debounce
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(e.target.value);
+            }, 300);
+        });
+        
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                const query = document.getElementById('searchInput').value;
+                if (query) {
+                    performSearch(query);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

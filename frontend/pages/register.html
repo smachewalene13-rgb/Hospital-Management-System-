@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Hospital Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .register-container {
+            max-width: 450px;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .register-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .register-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .register-header p {
+            opacity: 0.9;
+        }
+        
+        .register-body {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .strength-weak { color: #e53e3e; }
+        .strength-medium { color: #ed8936; }
+        .strength-strong { color: #48bb78; }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>🏥 Create Account</h1>
+            <p>Register for Hospital Management System</p>
+        </div>
+        
+        <div class="register-body">
+            <div id="messageDiv"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Username </label>
+                    <input type="text" id="username" required placeholder="Choose a username">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address </label>
+                    <input type="email" id="email" required placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password </label>
+                    <input type="password" id="password" required placeholder="Create a password">
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirm Password </label>
+                    <input type="password" id="confirmPassword" required placeholder="Confirm password">
+                </div>
+                
+                <div class="form-group">
+                    <label>User Role </label>
+                    <select id="role" required>
+                        <option value="">Select Role</option>
+                        <option value="staff">👤 Staff Member</option>
+                        <option value="doctor">👨‍⚕️ Doctor</option>
+                        <option value="admin">👑 Administrator</option>
+                    </select>
+                    <small style="color: #666; display: block; margin-top: 0.25rem;">
+                        Note: Admin role requires approval
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn" id="registerBtn">
+                    Create Account
+                </button>
+            </form>
+            
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/\d/)) strength++;
+            if (password.match(/[^a-zA-Z\d]/)) strength++;
+            
+            if (password.length === 0) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+            
+            let strengthText = '';
+            let strengthClass = '';
+            
+            switch(strength) {
+                case 1:
+                    strengthText = 'Weak password';
+                    strengthClass = 'strength-weak';
+                    break;
+                case 2:
+                    strengthText = 'Fair password';
+                    strengthClass = 'strength-medium';
+                    break;
+                case 3:
+                    strengthText = 'Good password';
+                    strengthClass = 'strength-strong';
+                    break;
+                case 4:
+                    strengthText = 'Strong password!';
+                    strengthClass = 'strength-strong';
+                    break;
+            }
+            
+            strengthDiv.innerHTML = `<span class="${strengthClass}">🔒 ${strengthText}</span>`;
+        }
+        
+        // Validate email format
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('messageDiv');
+            messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                if (messageDiv.firstChild) {
+                    messageDiv.firstChild.remove();
+                }
+            }, 5000);
+        }
+        
+        // Check if username exists
+        async function checkUsername(username) {
+            try {
+                const response = await fetch(`${API_BASE}/auth/check-username?username=${username}`);
+                const data = await response.json();
+                return data.exists;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        // Check if email exists
+        async function checkEmail(email) {
+            try {
+                const response = await fetch(`${API_BASE}/auth/check-email?email=${email}`);
+                const data = await response.json();
+                return data.exists;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        // Real-time username availability check
+        let usernameTimeout;
+        document.getElementById('username').addEventListener('input', async (e) => {
+            clearTimeout(usernameTimeout);
+            const username = e.target.value;
+            
+            if (username.length < 3) {
+                document.getElementById('username').style.borderColor = '#ddd';
+                return;
+            }
+            
+            usernameTimeout = setTimeout(async () => {
+                const exists = await checkUsername(username);
+                if (exists) {
+                    document.getElementById('username').style.borderColor = '#e53e3e';
+                    showMessage('Username already taken', 'error');
+                } else {
+                    document.getElementById('username').style.borderColor = '#48bb78';
+                }
+            }, 500);
+        });
+        
+        // Real-time email validation
+        document.getElementById('email').addEventListener('blur', async (e) => {
+            const email = e.target.value;
+            if (email && !validateEmail(email)) {
+                document.getElementById('email').style.borderColor = '#e53e3e';
+                showMessage('Please enter a valid email address', 'error');
+            } else if (email) {
+                const exists = await checkEmail(email);
+                if (exists) {
+                    document.getElementById('email').style.borderColor = '#e53e3e';
+                    showMessage('Email already registered', 'error');
+                } else {
+                    document.getElementById('email').style.borderColor = '#48bb78';
+                }
+            }
+        });
+        
+        // Password strength listener
+        document.getElementById('password').addEventListener('input', (e) => {
+            checkPasswordStrength(e.target.value);
+        });
+        
+        // Form submission
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.getElementById('role').value;
+            
+            const registerBtn = document.getElementById('registerBtn');
+            
+            // Clear previous messages
+            document.getElementById('messageDiv').innerHTML = '';
+            
+            // Validation
+            if (!username || !email || !password || !role) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showMessage('Username must be at least 3 characters', 'error');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showMessage('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            // Check username availability again
+            const usernameExists = await checkUsername(username);
+            if (usernameExists) {
+                showMessage('Username already taken. Please choose another', 'error');
+                return;
+            }
+            
+            // Check email availability
+            const emailExists = await checkEmail(email);
+            if (emailExists) {
+                showMessage('Email already registered. Please use another email or login', 'error');
+                return;
+            }
+            
+            // Show loading state
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<span class="loading"></span> Creating account...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                        role: role,
+                        full_name: username,
+                        department: '',
+                        phone: ''
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`
+                        ✅ Account created successfully!<br>
+                        <strong>Username:</strong> ${username}<br>
+                        <strong>Role:</strong> ${role}<br><br>
+                        You can now login with your credentials.
+                    `, 'success');
+                    
+                    // Reset form
+                    document.getElementById('registerForm').reset();
+                    document.getElementById('passwordStrength').innerHTML = '';
+                    
+                    // Redirect to login after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                } else {
+                    showMessage(`❌ Registration failed: ${data.error || 'Please try again'}`, 'error');
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = 'Create Account';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage('❌ Cannot connect to server. Please make sure the backend is running.', 'error');
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = 'Create Account';
+            }
+        });
+        
+        // Add role description on change
+        document.getElementById('role').addEventListener('change', (e) => {
+            const role = e.target.value;
+            let description = '';
+            switch(role) {
+                case 'admin':
+                    description = 'Full system access, can manage users and settings';
+                    break;
+                case 'doctor':
+                    description = 'Can create prescriptions, view patient records';
+                    break;
+                case 'staff':
+                    description = 'Can manage appointments and patient registration';
+                    break;
+            }
+            if (description) {
+                showMessage(`📝 ${description}`, 'info');
+            }
+        });
+    </script>
+</body>
+</html>

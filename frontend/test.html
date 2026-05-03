@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Hospital System</title>
+</head>
+<body>
+    <h1>Hospital Management System Test</h1>
+    
+    <div id="status"></div>
+    
+    <h2>Add Test Patient</h2>
+    <button onclick="addPatient()">Add Test Patient</button>
+    
+    <h2>Get Patients</h2>
+    <button onclick="getPatients()">Load Patients</button>
+    <div id="patients"></div>
+    
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        
+        async function getPatients() {
+            try {
+                const response = await fetch(`${API_URL}/patients`);
+                const patients = await response.json();
+                document.getElementById('patients').innerHTML = 
+                    '<pre>' + JSON.stringify(patients, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('patients').innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        async function addPatient() {
+            try {
+                const response = await fetch(`${API_URL}/patients`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'Test Patient',
+                        age: 30,
+                        gender: 'Male',
+                        phone: '1234567890',
+                        email: 'test@example.com'
+                    })
+                });
+                const result = await response.json();
+                document.getElementById('status').innerHTML = 
+                    '<p style="color:green">Patient added: ' + JSON.stringify(result) + '</p>';
+                getPatients(); // Refresh the list
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    '<p style="color:red">Error: ' + error.message + '</p>';
+            }
+        }
+        
+        // Load patients when page loads
+        getPatients();
+    </script>
+</body>
+</html>

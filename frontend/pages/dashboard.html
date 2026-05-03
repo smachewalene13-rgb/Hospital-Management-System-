@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hospital Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand h2 {
+            color: #667eea;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .nav-menu a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-logout {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #c53030;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-header p {
+            color: #666;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+        }
+        
+        .stat-info h3 {
+            font-size: 2rem;
+            color: #667eea;
+        }
+        
+        .stat-info p {
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .recent-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .recent-section h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .nav-menu {
+                gap: 0.5rem;
+            }
+            
+            .nav-menu a {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 HMS</h2>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="patients.html">Patients</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="pharmacy.html">Pharmacy</a></li>
+            <!-- Users button will be added here dynamically by JavaScript -->
+        </ul>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Dashboard</h1>
+            <p id="welcomeMsg">Welcome to Hospital Management System</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="window.location.href='patients.html'">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="totalPatients">0</h3>
+                    <p>Total Patients</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='doctors.html'">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-info">
+                    <h3 id="totalDoctors">0</h3>
+                    <p>Total Doctors</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='appointments.html'">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3 id="totalAppointments">0</h3>
+                    <p>Total Appointments</p>
+                </div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='appointments.html'">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3 id="todayAppointments">0</h3>
+                    <p>Today's Appointments</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h2>Recent Patients</h2>
+            <div class="table-container">
+                <table id="recentPatientsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                        </thead>
+                    <tbody id="recentPatientsBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('access_token');
+        let user = null;
+        
+        // Try to get user from localStorage
+        try {
+            user = JSON.parse(localStorage.getItem('user') || '{}');
+            console.log('User from localStorage:', user);
+        } catch(e) {
+            console.error('Error parsing user:', e);
+        }
+        
+        // Check authentication
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        // Function to add Users menu item if admin
+        function addAdminMenuItems() {
+            const navMenu = document.getElementById('navMenu');
+            
+            // Check if user is admin
+            if (user && user.role === 'admin') {
+                console.log('Admin user detected - adding Users menu');
+                
+                // Check if Users link already exists
+                const existingUsersLink = document.querySelector('a[href="users.html"]');
+                if (!existingUsersLink) {
+                    // Create Users menu item
+                    const usersLi = document.createElement('li');
+                    usersLi.innerHTML = '<a href="users.html">👥 Users</a>';
+                    navMenu.appendChild(usersLi);
+                    
+                    // Also add Admin Dashboard link
+                    const adminLi = document.createElement('li');
+                    adminLi.innerHTML = '<a href="admin_dashboard.html">👑 Admin</a>';
+                    navMenu.appendChild(adminLi);
+                }
+            } else {
+                console.log('Regular user detected - role:', user?.role);
+            }
+        }
+        
+        // Also try to fetch user data from API to ensure we have correct role
+        async function fetchCurrentUser() {
+            try {
+                const response = await fetch(`${API_BASE}/users/${user.id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    console.log('Fetched user data:', userData);
+                    
+                    // Update localStorage with fresh user data
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    user = userData;
+                    
+                    // Add admin menus if role is admin
+                    if (user.role === 'admin') {
+                        addAdminMenuItems();
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user:', error);
+            }
+        }
+        
+        // Display welcome message
+        function displayWelcomeMessage() {
+            const welcomeMsg = document.getElementById('welcomeMsg');
+            const hour = new Date().getHours();
+            let greeting = 'Good Morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
+            if (hour >= 17) greeting = 'Good Evening';
+            
+            const userName = user?.full_name || user?.username || 'User';
+            welcomeMsg.innerHTML = `${greeting}, ${userName}! Welcome to Hospital Management System`;
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        async function fetchWithAuth(url, options = {}) {
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+            const response = await fetch(`${API_BASE}${url}`, options);
+            if (response.status === 401) {
+                logout();
+            }
+            return response;
+        }
+        
+        async function loadDashboard() {
+            try {
+                const response = await fetchWithAuth('/dashboard/stats');
+                const stats = await response.json();
+                document.getElementById('totalPatients').textContent = stats.total_patients || 0;
+                document.getElementById('totalDoctors').textContent = stats.total_doctors || 0;
+                document.getElementById('totalAppointments').textContent = stats.total_appointments || 0;
+                document.getElementById('todayAppointments').textContent = stats.scheduled_appointments || 0;
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        async function loadRecentPatients() {
+            try {
+                const response = await fetchWithAuth('/patients');
+                const patients = await response.json();
+                const tbody = document.getElementById('recentPatientsBody');
+                
+                if (!patients || patients.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">No patients found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = patients.slice(0, 5).map(patient => `
+                    <tr>
+                        <td>${patient.id}</td>
+                        <td>${escapeHtml(patient.name)}</td>
+                        <td>${patient.age}</td>
+                        <td>${patient.gender}</td>
+                        <td>${patient.phone}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading patients:', error);
+                document.getElementById('recentPatientsBody').innerHTML = '<tr><td colspan="5">Error loading patients</td></tr>';
+            }
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // Initialize page
+        async function init() {
+            displayWelcomeMessage();
+            await loadDashboard();
+            await loadRecentPatients();
+            
+            // Try to fetch fresh user data and add admin menus
+            if (user && user.id) {
+                await fetchCurrentUser();
+            } else {
+                // If user not in localStorage, try to get from API
+                addAdminMenuItems();
+            }
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadDashboard();
+            loadRecentPatients();
+        }, 30000);
+        
+        // Start the app
+        init();
+    </script>
+</body>
+</html>

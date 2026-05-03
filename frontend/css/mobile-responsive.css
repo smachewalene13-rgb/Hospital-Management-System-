@@ -1,0 +1,237 @@
+/* Mobile Responsive Design - Hospital Management System */
+/* For screens up to 768px (tablets and phones) */
+
+/* Global Mobile Styles */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    
+    /* Navigation Bar */
+    .navbar {
+        flex-direction: column;
+        padding: 0.75rem 1rem;
+        gap: 0.75rem;
+    }
+    
+    .nav-brand h2 {
+        font-size: 1.25rem;
+    }
+    
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-menu a {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn-logout {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Container */
+    .container {
+        padding: 0 1rem;
+        margin: 1rem auto;
+    }
+    
+    /* Dashboard Header */
+    .dashboard-header {
+        padding: 1rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        font-size: 1.75rem;
+    }
+    
+    .stat-info h3 {
+        font-size: 1.25rem;
+    }
+    
+    .stat-info p {
+        font-size: 0.7rem;
+    }
+    
+    /* Forms */
+    .form-container {
+        padding: 1rem;
+    }
+    
+    .form-container h2 {
+        font-size: 1.25rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Tables */
+    .table-container {
+        padding: 0.5rem;
+        overflow-x: auto;
+    }
+    
+    table {
+        font-size: 0.8rem;
+    }
+    
+    th, td {
+        padding: 0.5rem;
+        white-space: nowrap;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+    
+    .btn-small {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Cards */
+    .card {
+        padding: 1rem;
+    }
+    
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 1rem;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .quick-btn {
+        padding: 0.75rem;
+    }
+    
+    .quick-btn .emoji {
+        font-size: 1.5rem;
+    }
+    
+    /* Dashboard Grid */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    /* Charts */
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* For very small phones (up to 480px) */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .nav-menu {
+        gap: 0.35rem;
+    }
+    
+    .nav-menu a {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    button, 
+    .btn,
+    .stat-card,
+    .quick-btn,
+    .nav-menu a,
+    .btn-logout {
+        min-height: 44px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .stat-card:hover,
+    .quick-btn:hover,
+    .btn:hover {
+        transform: none;
+    }
+}
+
+/* Landscape mode for phones */
+@media (max-width: 768px) and (orientation: landscape) {
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .navbar {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+/* Tablet styles (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .container {
+        max-width: 95%;
+    }
+}

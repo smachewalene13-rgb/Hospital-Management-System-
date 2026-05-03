@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Dashboard - Hospital Management System</title>
+    <link rel="stylesheet" href="../css/mobile-responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-brand h2 {
+            color: #667eea;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 1rem;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-logout {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        /* Dashboard Controls */
+        .dashboard-controls {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .widget-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .add-widget-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .reset-layout-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Widget Grid */
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .widget {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .widget-header {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+        
+        .widget-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .widget-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .widget-controls button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+        }
+        
+        .widget-controls button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .widget-content {
+            padding: 1rem;
+            min-height: 250px;
+        }
+        
+        .widget-placeholder {
+            background: #e2e8f0;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        
+        /* Widget Types */
+        .stats-widget {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .chart-container {
+            height: 250px;
+        }
+        
+        .recent-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .recent-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .widgets-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 HMS</h2>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="custom-dashboard.html" class="active">Custom Dashboard</a></li>
+            <li><a href="patients.html">Patients</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="global-search.html">🔍 Search</a></li>
+        </ul>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-controls">
+            <div class="widget-selector">
+                <select id="widgetType" class="add-widget-btn" style="background: white; color: #667eea; border: 2px solid #667eea;">
+                    <option value="stats">📊 Statistics Widget</option>
+                    <option value="chart">📈 Chart Widget</option>
+                    <option value="recent-patients">👥 Recent Patients</option>
+                    <option value="recent-appointments">📅 Recent Appointments</option>
+                    <option value="low-stock">💊 Low Stock Alert</option>
+                </select>
+                <button onclick="addWidget()" class="add-widget-btn">+ Add Widget</button>
+            </div>
+            <button onclick="resetLayout()" class="reset-layout-btn">⟳ Reset Layout</button>
+        </div>
+        
+        <div id="widgetsGrid" class="widgets-grid"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        const token = localStorage.getItem('access_token');
+        let charts = {};
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        // Load saved layout
+        function loadLayout() {
+            const savedLayout = localStorage.getItem('dashboardLayout');
+            if (savedLayout) {
+                try {
+                    const widgets = JSON.parse(savedLayout);
+                    displayWidgets(widgets);
+                } catch(e) {
+                    loadDefaultWidgets();
+                }
+            } else {
+                loadDefaultWidgets();
+            }
+        }
+        
+        function loadDefaultWidgets() {
+            const defaultWidgets = [
+                { type: 'stats', id: Date.now() },
+                { type: 'chart', id: Date.now() + 1 },
+                { type: 'recent-patients', id: Date.now() + 2 },
+                { type: 'recent-appointments', id: Date.now() + 3 }
+            ];
+            displayWidgets(defaultWidgets);
+            saveLayout(defaultWidgets);
+        }
+        
+        async function displayWidgets(widgets) {
+            const container = document.getElementById('widgetsGrid');
+            container.innerHTML = '';
+            
+            for (const widget of widgets) {
+                const widgetDiv = document.createElement('div');
+                widgetDiv.className = 'widget';
+                widgetDiv.setAttribute('data-id', widget.id);
+                widgetDiv.setAttribute('data-type', widget.type);
+                
+                // Widget content based on type
+                let content = '';
+                switch(widget.type) {
+                    case 'stats':
+                        content = await getStatsWidgetContent();
+                        break;
+                    case 'chart':
+                        content = '<div class="chart-container"><canvas id="chart-' + widget.id + '"></canvas></div>';
+                        break;
+                    case 'recent-patients':
+                        content = '<div class="recent-list" id="recent-patients-list"></div>';
+                        break;
+                    case 'recent-appointments':
+                        content = '<div class="recent-list" id="recent-appointments-list"></div>';
+                        break;
+                    case 'low-stock':
+                        content = '<div class="recent-list" id="low-stock-list"></div>';
+                        break;
+                }
+                
+                widgetDiv.innerHTML = `
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <span>${getWidgetIcon(widget.type)}</span>
+                            <span>${getWidgetTitle(widget.type)}</span>
+                        </div>
+                        <div class="widget-controls">
+                            <button onclick="refreshWidget('${widget.id}')">🔄</button>
+                            <button onclick="removeWidget('${widget.id}')">✕</button>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        ${content}
+                    </div>
+                `;
+                
+                container.appendChild(widgetDiv);
+                
+                // Load widget data
+                await loadWidgetData(widget);
+            }
+        }
+        
+        function getWidgetIcon(type) {
+            const icons = {
+                'stats': '📊',
+                'chart': '📈',
+                'recent-patients': '👥',
+                'recent-appointments': '📅',
+                'low-stock': '⚠️'
+            };
+            return icons[type] || '📋';
+        }
+        
+        function getWidgetTitle(type) {
+            const titles = {
+                'stats': 'Statistics Overview',
+                'chart': 'Monthly Trends',
+                'recent-patients': 'Recent Patients',
+                'recent-appointments': 'Recent Appointments',
+                'low-stock': 'Low Stock Alerts'
+            };
+            return titles[type] || 'Widget';
+        }
+        
+        async function getStatsWidgetContent() {
+            try {
+                const response = await fetch(`${API_BASE}/dashboard/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const stats = await response.json();
+                
+                return `
+                    <div class="stats-widget">
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.total_patients || 0}</div>
+                            <div>Patients</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.total_doctors || 0}</div>
+                            <div>Doctors</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.total_appointments || 0}</div>
+                            <div>Appointments</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${stats.scheduled_appointments || 0}</div>
+                            <div>Today</div>
+                        </div>
+                    </div>
+                `;
+            } catch(e) {
+                return '<div>Error loading stats</div>';
+            }
+        }
+        
+        async function loadWidgetData(widget) {
+            if (widget.type === 'chart') {
+                await loadChart(widget.id);
+            } else if (widget.type === 'recent-patients') {
+                await loadRecentPatients();
+            } else if (widget.type === 'recent-appointments') {
+                await loadRecentAppointments();
+            } else if (widget.type === 'low-stock') {
+                await loadLowStock();
+            }
+        }
+        
+        async function loadChart(widgetId) {
+            try {
+                const response = await fetch(`${API_BASE}/appointments`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const appointments = await response.json();
+                
+                const monthlyData = {};
+                appointments.forEach(apt => {
+                    const month = apt.appointment_date.substring(0, 7);
+                    monthlyData[month] = (monthlyData[month] || 0) + 1;
+                });
+                
+                const months = Object.keys(monthlyData).slice(-6);
+                const counts = months.map(m => monthlyData[m]);
+                
+                const ctx = document.getElementById(`chart-${widgetId}`).getContext('2d');
+                if (charts[widgetId]) charts[widgetId].destroy();
+                
+                charts[widgetId] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Appointments',
+                            data: counts,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true
+                    }
+                });
+            } catch(e) {
+                console.error('Chart error:', e);
+            }
+        }
+        
+        async function loadRecentPatients() {
+            try {
+                const response = await fetch(`${API_BASE}/patients`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const patients = await response.json();
+                const listContainer = document.getElementById('recent-patients-list');
+                
+                if (listContainer) {
+                    listContainer.innerHTML = patients.slice(0, 5).map(p => `
+                        <div class="recent-item">
+                            <strong>${escapeHtml(p.name)}</strong><br>
+                            Age: ${p.age} | ${p.gender} | 📞 ${p.phone}
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                console.error('Error loading patients:', e);
+            }
+        }
+        
+        async function loadRecentAppointments() {
+            try {
+                const response = await fetch(`${API_BASE}/appointments`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const appointments = await response.json();
+                const listContainer = document.getElementById('recent-appointments-list');
+                
+                if (listContainer) {
+                    listContainer.innerHTML = appointments.slice(0, 5).map(a => `
+                        <div class="recent-item">
+                            <strong>${escapeHtml(a.patient_name)}</strong> with Dr. ${escapeHtml(a.doctor_name)}<br>
+                            📅 ${a.appointment_date} at ${a.appointment_time} | <span class="result-badge">${a.status}</span>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                console.error('Error loading appointments:', e);
+            }
+        }
+        
+        async function loadLowStock() {
+            try {
+                const response = await fetch(`${API_BASE}/pharmacy/low-stock`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const medicines = await response.json();
+                const listContainer = document.getElementById('low-stock-list');
+                
+                if (listContainer) {
+                    if (medicines.length === 0) {
+                        listContainer.innerHTML = '<div class="recent-item">No low stock items</div>';
+                    } else {
+                        listContainer.innerHTML = medicines.map(m => `
+                            <div class="recent-item">
+                                <strong>⚠️ ${escapeHtml(m.medicine_name)}</strong><br>
+                                Stock: ${m.stock_quantity} | Reorder Level: ${m.reorder_level}
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch(e) {
+                console.error('Error loading low stock:', e);
+            }
+        }
+        
+        function addWidget() {
+            const widgetType = document.getElementById('widgetType').value;
+            const currentLayout = JSON.parse(localStorage.getItem('dashboardLayout') || '[]');
+            
+            currentLayout.push({
+                type: widgetType,
+                id: Date.now()
+            });
+            
+            saveLayout(currentLayout);
+            displayWidgets(currentLayout);
+        }
+        
+        function removeWidget(widgetId) {
+            let currentLayout = JSON.parse(localStorage.getItem('dashboardLayout') || '[]');
+            currentLayout = currentLayout.filter(w => w.id != widgetId);
+            saveLayout(currentLayout);
+            displayWidgets(currentLayout);
+        }
+        
+        function refreshWidget(widgetId) {
+            const widget = JSON.parse(localStorage.getItem('dashboardLayout') || '[]').find(w => w.id == widgetId);
+            if (widget) {
+                loadWidgetData(widget);
+            }
+        }
+        
+        function resetLayout() {
+            localStorage.removeItem('dashboardLayout');
+            loadDefaultWidgets();
+        }
+        
+        function saveLayout(widgets) {
+            localStorage.setItem('dashboardLayout', JSON.stringify(widgets));
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // Initialize
+        loadLayout();
+    </script>
+</body>
+</html>

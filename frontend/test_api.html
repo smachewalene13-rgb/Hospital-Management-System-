@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <button onclick="testAPI()">Test API Connection</button>
+    <button onclick="testLogin()">Test Login</button>
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+    
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing API connection...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/test`);
+                const data = await response.json();
+                resultDiv.innerHTML = `<pre style="color: green">✅ API Working!\n${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<pre style="color: red">❌ API Error: ${error.message}\n\nMake sure Flask is running on port 5000</pre>`;
+            }
+        }
+        
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing login...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<pre style="color: green">✅ Login Successful!\n${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<pre style="color: red">❌ Login Failed: ${data.error}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<pre style="color: red">❌ Error: ${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>
