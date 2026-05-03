@@ -1,0 +1,6 @@
+Flask==2.3.0
+flask-cors==4.0.0
+bcrypt==4.0.1
+PyJWT==2.8.0
+reportlab==4.0.4
+gunicorn==21.2.0
